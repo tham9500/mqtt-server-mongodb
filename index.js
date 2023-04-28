@@ -258,7 +258,7 @@ client.on('message', async (topic, message) => {
     data = JSON.parse(data);
     // data._id = data['uuid'];
     data.created = moment().utc().add(5, 'hours');
-    var device = await Events.find({ });
+    var device = await Events.find({uuid:data['uuid']});
     console.log(device);
     if(device.length==0){
         await saveData(data);
@@ -285,6 +285,8 @@ saveData = async (data) => {
     
     data = await data.save();
     console.log('Saved data:', data);
+    console.log('Create Data Successful.');
+    console.log('================================');
 
     // Send live data to applications
     await sendToApplicaiton(topic_ws_send, data);
@@ -298,6 +300,8 @@ updataData = async(data,id)=>{
         $set: data,
       }
     );
+    console.log('Updates Data Successful.');
+    console.log('================================');
     await sendToApplicaiton(topic_ws_send, Date().toLocaleString());
 }
 
