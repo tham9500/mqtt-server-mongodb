@@ -1,12 +1,12 @@
 /*
 Welcome to JP Learning
 */
-const express = require('express');
-const mqtt = require('mqtt');
-const shortId = require('shortid');
-const mongoose = require('mongoose');
-const moment = require('moment');
-const cors = require('cors');
+const express = require("express");
+const mqtt = require("mqtt");
+const shortId = require("shortid");
+const mongoose = require("mongoose");
+const moment = require("moment");
+const cors = require("cors");
 
 const app = express();
 const port_client = 8080;
@@ -14,18 +14,18 @@ app.use(express.json());
 
 // Enable cors on all requests.
 app.use(cors());
-app.options('*', cors());
+app.options("*", cors());
 
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*'
-    }
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
 });
 
 // Import Models
-const Users = require('./models/usersModel');
-const Events = require('./models/eventsModel');
+const Users = require("./models/usersModel");
+const Events = require("./models/eventsModel");
 
 const topic_mqtt_receive = "JPLearning_SensorData";
 const topic_mqtt_send = "JPLearning_CommandRequest";
@@ -33,115 +33,121 @@ const topic_ws_receive = "JPLearning_CommandRequest";
 const topic_ws_send = "JPLearning_SensorData";
 
 // HTTP POST Method
-app.post('/users', async (req, res) => {
-    console.log('POST Request');
+app.post("/users", async (req, res) => {
+  console.log("POST Request");
 
-    // res.send('Got a POST request')
+  // res.send('Got a POST request')
 
-    let user = req.body;
-    console.log('body:', user)
+  let user = req.body;
+  console.log("body:", user);
 
-    user = new Users(user);
-    console.log('user1:', user)
+  user = new Users(user);
+  console.log("user1:", user);
 
-    user = await user.save();
-    console.log('user:', user)
+  user = await user.save();
+  console.log("user:", user);
 
-    return res.status(201).json(user);
-})
+  return res.status(201).json(user);
+});
 
 // HTTP GET Method
-app.get('/users', async (req, res) => {
-    console.log('GET Request');
+app.get("/users", async (req, res) => {
+  console.log("GET Request");
 
-    // res.send('Assalam-o-Alaikum Hello World! Welcome to JP Learning :)')
+  // res.send('Assalam-o-Alaikum Hello World! Welcome to JP Learning :)')
 
-    let users = await Users.find({});
+  let users = await Users.find({});
 
-    console.log('users:', users)
+  console.log("users:", users);
 
-    return res.status(200).json(users);
-})
+  return res.status(200).json(users);
+});
 
 // HTTP GET by ID Method
-app.get('/users/:id', async (req, res) => {
-    console.log('GET Request');
+app.get("/users/:id", async (req, res) => {
+  console.log("GET Request");
 
-    // res.send('Assalam-o-Alaikum Hello World! Welcome to JP Learning :)')
+  // res.send('Assalam-o-Alaikum Hello World! Welcome to JP Learning :)')
 
-    console.log('id:', req.params.id)
-    // let user = await Users.findById(req.params.id);
-    let user = await Users.findOne({ _id: req.params.id });
+  console.log("id:", req.params.id);
+  // let user = await Users.findById(req.params.id);
+  let user = await Users.findOne({ _id: req.params.id });
 
-    console.log('user:', user)
+  console.log("user:", user);
 
-    return res.status(200).json(user);
-})
+  return res.status(200).json(user);
+});
 
 // HTTP PUT Method
-app.put('/users/:id', async (req, res) => {
-    console.log('PUT Request');
+app.put("/users/:id", async (req, res) => {
+  console.log("PUT Request");
 
-    // res.send('Got a PUT request at / device')
+  // res.send('Got a PUT request at / device')
 
-    console.log('id:', req.params.id)
-    console.log('body:', req.body)
+  console.log("id:", req.params.id);
+  console.log("body:", req.body);
 
-    // let user = await Users.findByIdAndUpdate(req.params.id, req.body);
-    let user = await Users.findOneAndUpdate({ _id: req.params.id }, req.body);
+  // let user = await Users.findByIdAndUpdate(req.params.id, req.body);
+  let user = await Users.findOneAndUpdate({ _id: req.params.id }, req.body);
 
-    user = await Users.findById(req.params.id);
+  user = await Users.findById(req.params.id);
 
-    console.log('user:', user);
+  console.log("user:", user);
 
-    return res.status(200).json(user);
-})
+  return res.status(200).json(user);
+});
 
 // HTTP DELETE Method
-app.delete('/users/:id', async (req, res) => {
-    console.log('DELETE Request');
+app.delete("/users/:id", async (req, res) => {
+  console.log("DELETE Request");
 
-    // res.send('Got a DELETE request at /device')
+  // res.send('Got a DELETE request at /device')
 
-    console.log('id:', req.params.id)
+  console.log("id:", req.params.id);
 
-    // let user = await Users.findByIdAndDelete(req.params.id);
-    // let user = await Users.findByIdAndRemove(req.params.id);
+  // let user = await Users.findByIdAndDelete(req.params.id);
+  // let user = await Users.findByIdAndRemove(req.params.id);
 
-    // let user = await Users.findOneAndDelete({ _id: req.params.id });
-    let user = await Users.findOneAndRemove({ _id: req.params.id });
+  // let user = await Users.findOneAndDelete({ _id: req.params.id });
+  let user = await Users.findOneAndRemove({ _id: req.params.id });
 
-    console.log('user:', user);
+  console.log("user:", user);
 
-    return res.status(200).json(user);
-})
+  return res.status(200).json(user);
+});
 
 // HTTP GET last events of all devices
-app.get('/events', async (req, res) => {
-    console.log('GET Request for Events');
+app.get("/events", async (req, res) => {
+  console.log("GET Request for Events");
 
-    let events = [];
+  let events = [];
 
-    // let eventTemperature = await Events.findOne({ type: 'Temperature' }).sort({ created: -1 }).limit(1);
-    let eventTemperature = await Events.findOne({ type: 'Temperature' }).sort({ created: -1 });
-    if (eventTemperature) {
-        events.push(eventTemperature);
-    }
+  // let eventTemperature = await Events.findOne({ type: 'Temperature' }).sort({ created: -1 }).limit(1);
+  let eventTemperature = await Events.findOne({ type: "Temperature" }).sort({
+    created: -1,
+  });
+  if (eventTemperature) {
+    events.push(eventTemperature);
+  }
 
-    let eventHumidity = await Events.findOne({ type: 'Humidity' }).sort({ created: -1 });
-    if (eventHumidity) {
-        events.push(eventHumidity);
-    }
+  let eventHumidity = await Events.findOne({ type: "Humidity" }).sort({
+    created: -1,
+  });
+  if (eventHumidity) {
+    events.push(eventHumidity);
+  }
 
-    let eventLight = await Events.findOne({ type: 'Light' }).sort({ created: -1 });
-    if (eventLight) {
-        events.push(eventLight);
-    }
+  let eventLight = await Events.findOne({ type: "Light" }).sort({
+    created: -1,
+  });
+  if (eventLight) {
+    events.push(eventLight);
+  }
 
-    console.log('events:', events)
+  console.log("events:", events);
 
-    return res.status(200).json(events);
-})
+  return res.status(200).json(events);
+});
 
 app.get("/devicedata", async (req, res) => {
   const devicedata = await Events.find({});
@@ -150,63 +156,69 @@ app.get("/devicedata", async (req, res) => {
 });
 
 // HTTP GET by DeviceId and Type Method
-app.get('/events/deviceId/:deviceId/type/:type', async (req, res) => {
-    console.log('GET Request for Events');
+app.get("/events/deviceId/:deviceId/type/:type", async (req, res) => {
+  console.log("GET Request for Events");
 
-    console.log('deviceId:', req.params.deviceId)
-    console.log('type:', req.params.type)
-    let events = await Events.find({ device_id: req.params.deviceId, type: req.params.type });
+  console.log("deviceId:", req.params.deviceId);
+  console.log("type:", req.params.type);
+  let events = await Events.find({
+    device_id: req.params.deviceId,
+    type: req.params.type,
+  });
 
-    console.log('events:', events)
+  console.log("events:", events);
 
-    return res.status(200).json(events);
-})
+  return res.status(200).json(events);
+});
 
 // HTTP GET last event by DeviceId and Type Method
-app.get('/events/last/deviceId/:deviceId/type/:type', async (req, res) => {
-    console.log('GET Request for Last Events');
+app.get("/events/last/deviceId/:deviceId/type/:type", async (req, res) => {
+  console.log("GET Request for Last Events");
 
-    console.log('deviceId:', req.params.deviceId)
-    console.log('type:', req.params.type)
-    // let eventTemperature = await Events.findOne({ device_id: req.params.deviceId, type: req.params.type }).sort({ created: -1 }).limit(1);
-    let event = await Events.findOne({ device_id: req.params.deviceId, type: req.params.type }).sort({ created: -1 });
+  console.log("deviceId:", req.params.deviceId);
+  console.log("type:", req.params.type);
+  // let eventTemperature = await Events.findOne({ device_id: req.params.deviceId, type: req.params.type }).sort({ created: -1 }).limit(1);
+  let event = await Events.findOne({
+    device_id: req.params.deviceId,
+    type: req.params.type,
+  }).sort({ created: -1 });
 
-    console.log('event:', event)
+  console.log("event:", event);
 
-    return res.status(200).json(event);
-})
+  return res.status(200).json(event);
+});
 
 // MongoDB Connection Success
-mongoose.connection.on('connected', async () => {
-    console.log('MongoDb connected');
+mongoose.connection.on("connected", async () => {
+  console.log("MongoDb connected");
 });
 
 // MongoDB Connection Fail
-mongoose.connection.on('error', async (err) => {
-    console.log('Error connecting MongoDb', err);
+mongoose.connection.on("error", async (err) => {
+  console.log("Error connecting MongoDb", err);
 });
 
 server.listen(port_client, async () => {
   // Connect MongoDb
   await mongoose.connect(
-    "mongodb+srv://iotproject:1900190013@iotdb.hzameoz.mongodb.net/test"
+    "mongodb+srv://iot1234:iot1234@cluster0.duoc0eh.mongodb.net/test"
   );
 
   console.log(`Example app listening on port ${port_client}`);
 });
 // WebSocket(Socket.IO)
 
-io.on('connection', async (client) => {
-    console.log('Client Connected');
-    console.log(client.id);
+io.on("connection", async (client) => {
+  console.log("Client Connected");
+  console.log(client.id);
 
-    client.on(topic_ws_receive, async (data) => {
-        console.log('[WS Received] Data:', data);
-        console.log('[WS Received] Data.device_id:', data.device_id);
+  client.on(topic_ws_receive, async (data) => {
+    console.log("[WS Received] Data:", data);
+    console.log("[WS Received] Data.device_id:", data.device_id);
 
-        // Send command to device
-        await sendToDevice(topic_mqtt_send, data);
-    })
+    // Send command to device
+    await sendToDevice(topic_mqtt_send, data);
+  });
 });
 
 // setInterval(async () => {
@@ -214,9 +226,9 @@ io.on('connection', async (client) => {
 // }, 1000);
 
 sendToApplicaiton = async (topic, msg) => {
-    console.log('\n[WS Sending] data to Applications message:', msg)
-    await io.emit(topic, msg);
-}
+  console.log("\n[WS Sending] data to Applications message:", msg);
+  await io.emit(topic, msg);
+};
 
 // MQTT(HiveMQ)
 
@@ -241,74 +253,66 @@ sendToApplicaiton = async (topic, msg) => {
 //   }
 // );
 // const client = mqtt.connect(options);
-const client = mqtt.connect("mqtt://broker.hivemq.com:1883");
+const client = mqtt.connect("mqtt://mqtt-dashboard.com:1883");
 
-client.on('connect', async () => {
-    console.log('MQTT Connected');
+client.on("connect", async () => {
+  console.log("MQTT Connected");
 
-    await client.subscribe(topic_mqtt_receive);
-})
+  await client.subscribe(topic_mqtt_receive);
+});
 
-client.on('message', async (topic, message) => {
-    // console.log('\n[MQTT Received] Topic:', topic, ', Message:', message.toString()); 
+client.on("message", async (topic, message) => {
+  // console.log('\n[MQTT Received] Topic:', topic, ', Message:', message.toString());
 
-    // let data = message;
-    let data = message.toString();
-    
-    data = JSON.parse(data);
-    // data._id = data['uuid'];
-    data.created = moment().utc().add(5, 'hours');
-    var device = await Events.find({uuid:data['uuid']});
-    console.log(device);
-    if(device.length==0){
-        await saveData(data);
-    }else{
-        var devicedata = await Events.find({ uuid: data["uuid"] });
-        var id = devicedata._id;
+  // let data = message;
+  let data = message.toString();
 
-        if (devicedata==null) {
-          await saveData(data);
-        } else {
-          await updataData(data,id);
-        }
+  data = JSON.parse(data);
+  // data._id = data['uuid'];
+  data.created = moment().utc().add(5, "hours");
+  var device = await Events.find({});
+  console.log(device);
+  if (device.length == 0) {
+    await saveData(data);
+  } else {
+    var devicedata = await Events.find({ uuid: data["uuid"] });
+    var id = devicedata._id;
+
+    if (devicedata == null) {
+      await saveData(data);
+    } else {
+      await updataData(data, id);
     }
-    
-    // Save live data into database
-    
-})
+  }
 
-
-
+  // Save live data into database
+});
 
 saveData = async (data) => {
-    data = new Events(data);
-    
-    data = await data.save();
-    console.log('Saved data:', data);
-    console.log('Create Data Successful.');
-    console.log('================================');
+  data = new Events(data);
 
-    // Send live data to applications
-    await sendToApplicaiton(topic_ws_send, data);
-}
+  data = await data.save();
+  console.log("Saved data:", data);
 
-updataData = async(data,id)=>{
-    data = new Events(data);
-    data = await Events.findOneAndUpdate(
-      {uuid:data["uuid"],_id:id} ,
-      {
-        $set: data,
-      }
-    );
-    console.log('Updates Data Successful.');
-    console.log('================================');
-    await sendToApplicaiton(topic_ws_send, Date().toLocaleString());
-}
+  // Send live data to applications
+  await sendToApplicaiton(topic_ws_send, data);
+};
+
+updataData = async (data, id) => {
+  data = new Events(data);
+  data = await Events.findOneAndUpdate(
+    { uuid: data["uuid"], _id: id },
+    {
+      $set: data,
+    }
+  );
+  await sendToApplicaiton(topic_ws_send, Date().toLocaleString());
+};
 
 sendToDevice = async (topic, message) => {
-    console.log('\n[MQTT Sending] data to Device message:', message)
+  console.log("\n[MQTT Sending] data to Device message:", message);
 
-    let data = JSON.stringify(message);
-    // data = JSON.parse(data);
-    await client.publish(topic, data);
-}
+  let data = JSON.stringify(message);
+  // data = JSON.parse(data);
+  await client.publish(topic, data);
+};
